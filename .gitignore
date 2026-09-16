@@ -12,7 +12,8 @@ drafts/
 .ipynb_checkpoints/
 *.nbconvert.ipynb
 
-
+#Кэши python
+__pycache__/
 
 # IDE и редакторы
 .idea/
