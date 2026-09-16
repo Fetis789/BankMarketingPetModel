@@ -1,0 +1,36 @@
+[project]
+name = "bank-marketing-service"
+version = "0.1.0"
+description = "Service with model to predict bank marketing reaction"
+requires-python = ">=3.11,<3.13"
+
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "joblib",
+    "pydantic",
+    "pydantic-settings",
+    "pandas",
+    "scikit-learn>=1.6,<1.7",
+    "psycopg[binary]",
+    "catboost==1.2.10",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "httpx",
+    "locust",
+    "ruff"
+]
+
+[build-system]
+requires = ["uv_build>=0.10,<0.11"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "bank"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
