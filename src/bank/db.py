@@ -1,5 +1,5 @@
 import psycopg
-from psycorg.types.json import Json
+from psycopg.types.json import Json
 
 from bank.config import settings
 
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS predictions (
 def init():
     if not settings.database_url:
         return 
-    with psycorg.connect(settings.database_url) as conn:
+    with psycopg.connect(settings.database_url) as conn:
         conn.execute(DDL)
 
 def save_prediction(request_id, features, score, model_version, latency_ms):
