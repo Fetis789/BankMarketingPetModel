@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from bank.pipeline import CatBoostInferencePipeline
 
 from pydantic import BaseModel, Field
+from typing import Literal
 
 from bank import db
 from bank.config import settings
@@ -20,15 +21,15 @@ class Features(BaseModel):
     model_config = {"extra": "forbid"}
 
     euribor3m: float = Field(ge=0)
-    nr.employeed: float = Field(ge=0)
+    nr_employeed: float = Field(ge=0, alias="nr.employeed")
     month: Literal["jan","feb","mar","apr","may","jun","jul","aug",
         "sep","oct","nov","dec"] = Field(description="Month of the last contact")
     campaign: int = Field(ge=0)
     job: str
     education: str
     age: int = Field(ge=0)
-    emp.var.rate: float
-    cons.conf.idx: float
+    emp_var_rate: float = Field(alias="emp.var.rate")
+    cons_conf_idx: float = Field(alias="cons.conf.idx")
     day_of_week: Literal["mon","tue","wed","thu","fri","sat","sun"]
 
 
@@ -50,7 +51,7 @@ async def lifespan(app: FastAPI):
     yield
     app.state.pipeline = None
 
-app = FastAPI(title="bank-marketing-prediction", version="1.0.0")
+app = FastAPI(title="bank-marketing-prediction", version="1.0.0", lifespan=lifespan)
 
 @app.get("/health")
 def health():
@@ -67,7 +68,7 @@ def predict(x: Features, bg: BackgroundTasks) -> Prediction:
     t0 = time.perf_counter()
     request_id = str(uuid.uuid4())
 
-    payload = x.model_dump()
+    payload = x.model_dump(by_alias=True)
     #frame = pd.DataFrame([payload]).reindex(columns=app.state.meta["feature_names"])
 
     score = float(app.state.pipeline.predict_proba(payload)[0, 1])
