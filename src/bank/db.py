@@ -27,5 +27,5 @@ def save_prediction(request_id, features, score, model_version, latency_ms):
         conn.execute(
             "INSERT INTO predictions (request_id, model_version, features, score, latency_ms) "
             "VALUES (%s, %s, %s, %s, %s)",
-            (request_id, model_version, features, score, latency_ms)
+            (request_id, model_version, Json(features), score, latency_ms)
         )
