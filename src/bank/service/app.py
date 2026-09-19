@@ -1,27 +1,22 @@
 import time
 import uuid
-
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
+from typing import Literal
 
 import joblib 
 import pandas as pd
-
 from fastapi import FastAPI, HTTPException, BackgroundTasks
-
-from contextlib import asynccontextmanager
-from bank.pipeline import CatBoostInferencePipeline
-
 from pydantic import BaseModel, Field
-from typing import Literal
 
 from bank import db
 from bank.config import settings
+from bank.service.preprocess import preprocess
 
 class Features(BaseModel):
     model_config = {"extra": "forbid"}
 
     euribor3m: float = Field(ge=0)
-    nr_employeed: float = Field(ge=0, alias="nr.employeed")
+    nr_employed: float = Field(ge=0, alias="nr.employed")
     month: Literal["jan","feb","mar","apr","may","jun","jul","aug",
         "sep","oct","nov","dec"] = Field(description="Month of the last contact")
     campaign: int = Field(ge=0)
@@ -69,9 +64,8 @@ def predict(x: Features, bg: BackgroundTasks) -> Prediction:
     request_id = str(uuid.uuid4())
 
     payload = x.model_dump(by_alias=True)
-    #frame = pd.DataFrame([payload]).reindex(columns=app.state.meta["feature_names"])
-
-    score = float(app.state.pipeline.predict_proba(payload)[0, 1])
+    frame = preprocess(payload, app.state.meta)
+    score = float(app.state.pipeline.predict_proba(frame)[0, 1])
     latency_ms = round((time.perf_counter() - t0) * 1000, 2)
 
     bg.add_task(db.save_prediction, request_id, payload, score, app.state.version, latency_ms)
