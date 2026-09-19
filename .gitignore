@@ -15,6 +15,9 @@ drafts/
 #Кэши python
 __pycache__/
 
+# pytest
+.pytest_cache/
+
 # IDE и редакторы
 .idea/
 .vscode/

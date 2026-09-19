@@ -20,7 +20,7 @@ class Features(BaseModel):
     month: Literal["jan","feb","mar","apr","may","jun","jul","aug",
         "sep","oct","nov","dec"] = Field(description="Month of the last contact")
     campaign: int = Field(ge=0)
-    job: str
+    job: str | None = None
     education: str
     age: int = Field(ge=0)
     emp_var_rate: float = Field(alias="emp.var.rate")
