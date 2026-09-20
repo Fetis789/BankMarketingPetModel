@@ -11,6 +11,7 @@ drafts/
 # на всякий добавляю папку с чекпоинтами
 .ipynb_checkpoints/
 *.nbconvert.ipynb
+*/.ipynb_checkpoints/*
 
 #Кэши python
 __pycache__/
