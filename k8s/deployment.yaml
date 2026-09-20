@@ -13,24 +13,24 @@ spec:
         app: bank-service
     spec:
       containers:
-        - name: bank-service-api
+        - name: api
           image: bank-service:1.0
-          imagePullPolicy: ifNotPresent
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
           startupProbe:
             httpGet: {path: /health, port: 8000}
-            failureThreshold: 3
+            failureThreshold: 30
             periodSeconds: 2
           livenessProbe:
             httpGet: {path: /health, port: 8000}
-            periodSeconds: 5
+            periodSeconds: 10
           readinessProbe:
-            httpGet: {path: /health, port: 8000}
+            httpGet: {path: /ready, port: 8000}
             periodSeconds: 5
           resources:
-            requests: {cpu: 100m, memory: 128Mi}
-            limits: {cpu: 500m, memory: 256Mi}
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: 500m, memory: 512Mi}
 
 
     
