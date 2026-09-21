@@ -109,9 +109,18 @@ curl.exe -X POST "localhost:8080/v1/predict" -H "Content-Type: application/json"
 ![Скрин с резом после docker-compose](images\logs_after_docker_compose_final.png)
 
 
-
-
 ### Kubernetes
+В kubernetes в целом тоже все было практически аналогично семинару. Поэтому каких-то ошибок не возникало. Поэтому тут прикрепляю сразу скрины. 
+
+**Скрин с port-forward и curl-ом на 8080**
+![Скрин с port-forward](images\curl_to_cluster_with_pods.png)
+
+**Скрин с нодами в k9s**
+![Скрин с нодами в k9s](images\nodes_on_k9.png)
+
+**Скрин с curl-запросом в k9s**
+![Скрин с curlом к нодам в k9s](images\curl_in_k9_node.png)
+
 
 
 
