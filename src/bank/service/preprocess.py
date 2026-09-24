@@ -2,6 +2,7 @@ from typing import Any
 
 import pandas as pd
 
+
 def preprocess(
     payload: dict[str, Any],
     metadata: dict[str, Any],

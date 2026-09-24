@@ -1,4 +1,5 @@
-from pydantic_settings import  BaseSettings
+from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     model_path: str = "artefacts/bank_marketing_model_catboost_bundle.joblib"
