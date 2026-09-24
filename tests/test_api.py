@@ -3,6 +3,7 @@ import pytest
 
 from bank.service.app import app
 
+
 def test_health(client):
     r = client.get("/health")
     assert r.status_code == 200
@@ -54,7 +55,11 @@ def test_predict_age_out_of_range(client, good_row):
     ]
 )
 def test_threshold_logic_check(client, good_row, monkeypatch, score, threshold, expected):
-    monkeypatch.setattr(app.state.pipeline, "predict_proba", lambda x: np.array([[1 - score, score]]))
+    monkeypatch.setattr(
+        app.state.pipeline, 
+        "predict_proba", 
+        lambda x: np.array([[1 - score, score]]),
+    )
     monkeypatch.setitem(app.state.meta, "threshold", threshold)
     r = client.post("/v1/predict", json=good_row)
     assert r.status_code == 200

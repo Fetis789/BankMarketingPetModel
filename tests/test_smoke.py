@@ -1,6 +1,4 @@
-import pytest
 
-from bank.service.app import app
 
 def test_smoke(client, good_row):
     r = client.post("/v1/predict", json=good_row)

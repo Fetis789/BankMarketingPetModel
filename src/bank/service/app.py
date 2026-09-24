@@ -3,14 +3,14 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import Literal
 
-import joblib 
-import pandas as pd
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+import joblib
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from bank import db
 from bank.config import settings
 from bank.service.preprocess import preprocess
+
 
 class Features(BaseModel):
     model_config = {"extra": "forbid"}
@@ -72,7 +72,13 @@ def predict(x: Features, bg: BackgroundTasks) -> Prediction:
 
     response_flg = score >= app.state.meta["threshold"]
 
-    return Prediction(score=score, response_flg=response_flg, model_version=app.state.version, request_id=request_id, latency_ms=latency_ms)
+    return Prediction(
+            score=score, 
+            response_flg=response_flg, 
+            model_version=app.state.version, 
+            request_id=request_id, 
+            latency_ms=latency_ms
+    )
 
 
 
