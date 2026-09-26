@@ -58,6 +58,8 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
 
     if request.method == 'POST' and request.url.path == '/v1/predict':
         request_id = str(uuid.uuid4())
+        ##Строка для интеграционного теста (найти request_id в таблице)
+        response.headers["Request-ID"] = request_id
 
         raw_body = jsonable_encoder(exc.body)
         features = (
