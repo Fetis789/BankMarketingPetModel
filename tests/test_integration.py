@@ -6,8 +6,8 @@ import pytest
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 pytestmark = [
-    pytest.mark.integration,,
-    pytest.mark.skipif(not database_url, reason="нужна база данных Postgres: задайте DATABASE_URL"),
+    pytest.mark.integration,
+    pytest.mark.skipif(not DATABASE_URL, reason="нужна база данных Postgres: задайте DATABASE_URL"),
 ]
 
 def test_prediction_is_logged(client, good_row):
