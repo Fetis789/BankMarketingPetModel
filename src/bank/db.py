@@ -10,8 +10,9 @@ CREATE TABLE IF NOT EXISTS predictions (
     ts      timestamptz NOT NULL DEFAULT now(),
     model_version       text NOT NULL,
     features        jsonb NOT NULL,
-    score       double precision NOT NULL,
-    latency_ms real
+    score       double precision,
+    latency_ms real,
+    status_code int NOT NULL
 )"""
 
 def init():
@@ -25,7 +26,19 @@ def save_prediction(request_id, features, score, model_version, latency_ms):
         return 
     with psycopg.connect(settings.database_url) as conn:
         conn.execute(
-            "INSERT INTO predictions (request_id, model_version, features, score, latency_ms) "
-            "VALUES (%s, %s, %s, %s, %s)",
-            (request_id, model_version, Json(features), score, latency_ms)
+            "INSERT INTO predictions (request_id, model_version, features, score, "
+            "latency_ms, status_code) "
+            "VALUES (%s, %s, %s, %s, %s, %s)",
+            (request_id, model_version, Json(features), score, latency_ms, 200)
+        )
+
+def save_invalid_prediction(request_id, features, model_version, status_code):
+    if not settings.database_url:
+        return 
+    with psycopg.connect(settings.database_url) as conn:
+        conn.execute(
+            "INSERT INTO predictions (request_id, model_version, features, score, "
+            "latency_ms, status_code) "
+            "VALUES (%s, %s, %s, NULL, NULL, %s)",
+            (request_id, model_version, Json(features), status_code)
         )
