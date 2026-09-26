@@ -4,7 +4,13 @@ from contextlib import asynccontextmanager
 from typing import Literal
 
 import joblib
+from fastapi import Request
+from fastapi.encoders import jsonable_encoder
 from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
+
+
 from pydantic import BaseModel, Field
 
 from bank import db
@@ -22,7 +28,7 @@ class Features(BaseModel):
     campaign: int = Field(ge=0)
     job: str | None = None
     education: str
-    age: int = Field(ge=0)
+    age: int = Field(ge=0, le=120)
     emp_var_rate: float = Field(alias="emp.var.rate")
     cons_conf_idx: float = Field(alias="cons.conf.idx")
     day_of_week: Literal["mon","tue","wed","thu","fri","sat","sun"]
@@ -47,6 +53,33 @@ async def lifespan(app: FastAPI):
     app.state.pipeline = None
 
 app = FastAPI(title="bank-marketing-prediction", version="1.0.0", lifespan=lifespan)
+
+#Логирование ошибок при validation_error (неправильном вводе)
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, exc: RequestValidationError):
+    response = await request_validation_exception_handler(request, exc)
+
+    if request.method == 'POST' and request.url.path == '/v1/predict':
+        request_id = str(uuid.uuid4())
+
+        raw_body = jsonable_encoder(exc.body)
+        features = (
+            raw_body
+            if isinstance(raw_body, dict)
+            else {"raw_body": raw_body}
+        )
+
+        tasks = BackgroundTasks()
+        tasks.add_task(
+            db.save_invalid_prediction, 
+            request_id, 
+            features, 
+            getattr(app.state, "version", None), 
+            response.status_code)
+        response.background = tasks
+    
+    return response
+   
 
 @app.get("/health")
 def health():
