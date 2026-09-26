@@ -4,13 +4,10 @@ from contextlib import asynccontextmanager
 from typing import Literal
 
 import joblib
-from fastapi import Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
-from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
-
-
 from pydantic import BaseModel, Field
 
 from bank import db
