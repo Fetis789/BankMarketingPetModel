@@ -102,7 +102,7 @@ jobs:
 
           curl --fail -s http://localhost:8080/health; echo
           curl --fail -s -X POST http://localhost:8080/v1/predict \
-          -H "Content-Type: application/json" -d @good.json; echo
+          -H "Content-Type: application/json" -d @good_example.json; echo
         
           sleep 2
 
