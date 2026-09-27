@@ -118,6 +118,13 @@ jobs:
           kubectl describe deploy/bank-service | tail -20
           kubectl logs deploy/bank-service --tail=30 || true
 
+      - name: поверхностые логи при успехе
+        if: success()
+
+        run: |
+          kubectl get pods -o wide
+        
+
         
 
 
