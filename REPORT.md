@@ -12,6 +12,9 @@
 
 ### Три поломки с красным прогоном
 
+1. Неправильный путь к модели в configmap
+Ссылки на [сломанный action](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36340516528) и [починенный action]
+
 
 ## Ответы на семь вопросов
 
