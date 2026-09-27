@@ -20,7 +20,8 @@ spec:
             - containerPort: 8000
           envFrom:
             - configMapRef: {name: bank-config}
-            - secretRef: {name: bank-secrets}
+            - secretRef: {name: bank-secrets-mistake}
+            #- secretRef: {name: bank-secrets}
           startupProbe:
             httpGet: {path: /health, port: 8000}
             failureThreshold: 30
