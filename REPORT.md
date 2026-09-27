@@ -16,7 +16,7 @@
 Ссылки на [сломанный action](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36340516528) и [починенный action](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36341261200). Тут стоит отметить, что по логам сломанного action вообще непонятно, в чем проблема. Видно только, что проблема на этапе сборки сервиса, но более глубоко не видно (просто ошибка с exit code 1). При этом есть 3 пода сервиса - 2 в статусе ImagePullBackOff и 1 в статусе Running с 5 рестартами. И еще 1 корректно собранный под с postgres (что логично, он собирается раньше и не зависит от модели)
 
 2. Неправильное имя secret
-
+Ссылки на [сломанный action](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36342091664) и [починенный action](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36341261200). Ошибка также в 
 
 
 ## Ответы на семь вопросов
