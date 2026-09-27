@@ -8,7 +8,7 @@
 Также прикладываю ссылку на [pull request](https://github.com/Fetis789/BankMarketingPetModel/pull/11), в котором сначала сломал тест, потом починил. Этот request сделал уже после финального deploy, но тест сломал еще в самом начале вот [тут](https://github.com/Fetis789/BankMarketingPetModel/pull/5), просто тупанул и только сейчас увидел, что сломать и починить надо в одном и том же pull request.
 
 ### Сделанный пайплайн с особенностями моего сервиса.
-Прикрепляю [первый прогон](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36329137717) со времи тремя выполненными джобами с моими параметрами (интеграционный тест, путь к модели, который выдается в healthy и свой smoke test). Также прикрепляю [страницу](https://github.com/Fetis789/BankMarketingPetModel/pkgs/container/bankmarketingpetmodel) с собранным пакетом. На странице есть история всех коммитов, на которых собирался и публиковался образ. Сборка, которую прикрепил выше, соответствует коммиту sha-ad7b55ebb366e82da54d03d1b7cbeefb9a2f3a01.
+Прикрепляю [первый прогон](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36329137717) со времи тремя выполненными джобами с моими параметрами (интеграционный тест, путь к модели, который выдается в healthy и свой smoke test). Также прикрепляю [страницу](https://github.com/Fetis789/BankMarketingPetModel/pkgs/container/bankmarketingpetmodel) с собранным пакетом. На странице есть история всех коммитов, на которых собирался и публиковался образ. Сборка, которую прикрепил выше, соответствует коммиту sha-ad7b55ebb366e82da54d03d1b7cbeefb9a2f3a01. Впоследствиии добавил
 
 ### Три поломки с красным прогоном
 
@@ -19,7 +19,7 @@
 Ссылки на [сломанный action](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36342091664) и [починенный action](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36342605375). Ошибка также в пункте "сервис", но теперь она понятнее из-за статуса CreateContainerConfigError в одном из подов сервиса. Сразу понятно, что что-то с конфигом.
 
 3. Ресурсы
-
+Ссылки на [сломанный action](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36342983120) и [починенный action](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/36342605375). Ошибка все также в поле сервис, но теперь три ноды сервиса уже все в pending, что как раз и указывает на нехватку ресурсов. 
 
 
 ## Ответы на семь вопросов
