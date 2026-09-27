@@ -4,4 +4,4 @@ metadata:
   name: bank-config
 data:
   LOG_LEVEL: "INFO"
-  MODEL_PATH: artefacts\bank_marketing_model_catboost_bundle.joblib
+  MODEL_PATH: artefacts/bank_marketing_model_catboost_bundle.joblib

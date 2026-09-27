@@ -68,7 +68,64 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
     
-    -uses: helm
+      - uses: helm/kind-action@v1
+        with: {cluster_name: ci}
+      
+      - name: образ в кластер
+        run: |
+          docker pull "$IMAGE"
+          kind load docker-image "$IMAGE" --name ci
+        
+      - name: подтягивание секретов
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          kubectl create secret generic bank-secrets \
+          --from-literal=POSTGRES_PASSWORD="$DB_PASSWORD" \
+          --from-literal=DATABASE_URL="postgresql://postgres:$DB_PASSWORD@postgres:5432/bank"
+        
+      - name: база
+        run: |
+          kubectl apply -f k8s/postgres.yaml
+          kubectl rollout status deploy/postgres --timeout=180s
+        
+      - name: сервис
+        run: |
+          kubectl apply -f k8s/
+          kubectl set image deploy/bank-service api="$IMAGE"
+          kubectl rollout status deploy/bank-service --timeout=180s
+      
+      - name: smoke
+        run: |
+          kubectl port-forward svc/bank-service 8080:80 &
+          sleep 5
+
+          curl --fail -s http://localhost:8080/health; echo
+          curl --fail -s -X POST http://localhost:8080/v1/predict \
+          -H "Content-Type: application/json" -d @good.json; echo
+        
+          sleep 2
+
+          kubectl exec deploy/postgres -- psql -U postgres -d bank \
+            -tc "SELECT count(*) from predictions" | grep -q 1
+      
+      - name: диагностика
+        if: failure()
+
+        run: |
+          kubectl get pods -o wide
+          kubectl describe deploy/bank-service | tail -20
+          kubectl logs deploy/bank-service --tail=30 || true
+
+        
+
+
+
+        
+
+      
+
+      
 
 
 

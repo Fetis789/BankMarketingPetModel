@@ -40,3 +40,5 @@ spec:
     app: postgres
   ports:
     - port: 5432
+
+
