@@ -1,26 +1,26 @@
-import json 
+import json
 import os
 from pathlib import Path
 
-import mlflow
 import catboost
+import mlflow
 import mlflow.catboost
 import pandas as pd
-import sklearn 
+import sklearn
+from catboost import CatBoostClassifier
 from mlflow import MlflowClient
 from mlflow.exceptions import MlflowException
-from catboost import CatBoostClassifier
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
     accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
     average_precision_score,
     #Допом будем логировать classification_report
-    classification_report
+    classification_report,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
 )
+from sklearn.model_selection import train_test_split
 
 DATA_PATH = Path(os.getenv("DATA_PATH", 'datasets/bank_additional_pre.csv'))
 MODEL_NAME = os.getenv("MODEL_NAME", 'bank_catboost_model')
@@ -39,7 +39,8 @@ MIN_GAIN = float(os.getenv("MIN_GAIN", "0.01"))
 TARGET = 'y'
 NUMERIC = ['age', 'campaign', 'emp.var.rate', 'cons.conf.idx', 'euribor3m', 'nr.employed']
 CATEGORICAL = ['job', 'education', 'month', 'day_of_week']
-NUMERIC_MEDIANS = {'age': 38.0, 'campaign': 2.0, 'emp.var.rate': 1.1, 'cons.conf.idx': -41.8, 'euribor3m': 4.857, 'nr.employed': 5191.0}
+NUMERIC_MEDIANS = {'age': 38.0, 'campaign': 2.0, 'emp.var.rate': 1.1, 
+    'cons.conf.idx': -41.8, 'euribor3m': 4.857, 'nr.employed': 5191.0}
 SEED = 42
 SKOPS_TRUSTED = ["numpy.dtype", "sklearn.compose._column_transformer._RemainderColsList"]
 
@@ -110,8 +111,15 @@ def main() -> dict:
         df[features], df[target], test_size=0.2, random_state=SEED, stratify=df[target])
     x_train, x_val, y_train, y_val = train_test_split(
         x_train_val, y_train_val, test_size=0.2, random_state=SEED, stratify=y_train_val)
-    model = build_model(ITERATIONS, LEARNING_RATE, DEPTH, LOSS_FUNCTION, EVAL_METRIC, AUTO_CLASS_WEIGHTS)
-    model.fit(x_train, y_train, cat_features=CATEGORICAL, eval_set=[(x_val, y_val)], early_stopping_rounds=100)
+    model = build_model(ITERATIONS, LEARNING_RATE, DEPTH, 
+            LOSS_FUNCTION, EVAL_METRIC, AUTO_CLASS_WEIGHTS)
+    model.fit(
+        x_train, 
+        y_train, 
+        cat_features=CATEGORICAL, 
+        eval_set=[(x_val, y_val)], 
+        early_stopping_rounds=100
+        )
 
     proba = model.predict_proba(x_test)[:, 1]
     roc_auc = float(roc_auc_score(y_test, proba))
@@ -155,13 +163,16 @@ def main() -> dict:
     mlflow.set_experiment(EXPERIMENT_NAME)
     client = MlflowClient()
     with mlflow.start_run() as run:
-        metadata = {"features": features, "categorical": CATEGORICAL, "numeric": NUMERIC, "threshold": round(THRESHOLD, 4), 
-        "numeric_medians": NUMERIC_MEDIANS, "categorical_missing_value": "__MISSING__",
-        "n_train": len(x_train), "data_rows": len(df), "catboost_version": catboost.__version__, "sklearn": sklearn.__version__}
+        metadata = {"features": features, "categorical": CATEGORICAL, "numeric": NUMERIC, 
+        "threshold": round(THRESHOLD, 4), "numeric_medians": NUMERIC_MEDIANS, 
+        "categorical_missing_value": "__MISSING__", "n_train": len(x_train), 
+        "data_rows": len(df), "catboost_version": catboost.__version__, 
+        "sklearn": sklearn.__version__}
 
-        mlflow.log_params({"model": "CatBoostClassifier", "iterations": ITERATIONS, "learning_rate": LEARNING_RATE, "depth": DEPTH, 
-            "loss_function": LOSS_FUNCTION, "eval_metric": EVAL_METRIC, "auto_class_weights": AUTO_CLASS_WEIGHTS, "seed": SEED, 
-            "data": str(DATA_PATH)
+        mlflow.log_params({"model": "CatBoostClassifier", "iterations": ITERATIONS, 
+            "learning_rate": LEARNING_RATE, "depth": DEPTH, "loss_function": LOSS_FUNCTION, 
+            "eval_metric": EVAL_METRIC, "auto_class_weights": AUTO_CLASS_WEIGHTS, 
+            "seed": SEED, "data": str(DATA_PATH)
             })
 
         mlflow.log_metrics({"roc_auc": roc_auc, "pr_auc": pr_auc, "threshold": round(THRESHOLD, 4), 
@@ -169,8 +180,12 @@ def main() -> dict:
         mlflow.log_dict(metadata, "metadata.json")
         mlflow.log_table(report_df, artifact_file="classification_report.json")
 
-        info = mlflow.catboost.log_model(model, name = 'bank_model', registered_model_name=MODEL_NAME,
-            input_example=x_test.head(5), metadata=metadata)
+        info = mlflow.catboost.log_model(
+            model, 
+            name = 'bank_model', 
+            registered_model_name=MODEL_NAME,
+            input_example=x_test.head(5), metadata=metadata
+        )
         version = info.registered_model_version
 
     old_version, old_pr_auc = champion_pr_auc(client)
@@ -196,4 +211,3 @@ if __name__ == "__main__":
 
         
 
-    
