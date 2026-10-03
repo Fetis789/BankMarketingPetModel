@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from bank import db
 from bank.config import settings
 from bank.service.preprocess import preprocess
+from bank.model_store import load_model
 
 
 class Features(BaseModel):
@@ -40,10 +41,7 @@ class Prediction(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    bundle = joblib.load(settings.model_path)
-    app.state.pipeline = bundle["pipeline"]
-    app.state.meta = bundle["metadata"]
-    app.state.version = bundle["metadata"]["model_version"]
+    app.state.pipeline, app.state.meta, app.state.version = load_model()
 
     db.init()
     yield
