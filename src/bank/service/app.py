@@ -3,7 +3,6 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import Literal
 
-import joblib
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import request_validation_exception_handler
@@ -12,8 +11,8 @@ from pydantic import BaseModel, Field
 
 from bank import db
 from bank.config import settings
-from bank.service.preprocess import preprocess
 from bank.model_store import load_model
+from bank.service.preprocess import preprocess
 
 
 class Features(BaseModel):

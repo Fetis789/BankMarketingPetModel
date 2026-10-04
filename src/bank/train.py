@@ -163,11 +163,11 @@ def main() -> dict:
     mlflow.set_experiment(EXPERIMENT_NAME)
     client = MlflowClient()
     with mlflow.start_run() as run:
-        metadata = {"feature_names": features, "categorical_features": CATEGORICAL, "numeric_features": NUMERIC, 
-        "threshold": round(THRESHOLD, 4), "numeric_medians": NUMERIC_MEDIANS, 
-        "categorical_missing_value": "__MISSING__", "n_train": len(x_train), 
-        "data_rows": len(df), "catboost_version": catboost.__version__, 
-        "sklearn": sklearn.__version__}
+        metadata = {"feature_names": features, "categorical_features": CATEGORICAL, 
+        "numeric_features": NUMERIC, "threshold": round(THRESHOLD, 4), 
+        "numeric_medians": NUMERIC_MEDIANS, "categorical_missing_value": "__MISSING__", 
+        "n_train": len(x_train), "data_rows": len(df), 
+        "catboost_version": catboost.__version__, "sklearn": sklearn.__version__}
 
         mlflow.log_params({"model": "CatBoostClassifier", "iterations": ITERATIONS, 
             "learning_rate": LEARNING_RATE, "depth": DEPTH, "loss_function": LOSS_FUNCTION, 

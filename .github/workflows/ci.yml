@@ -86,7 +86,6 @@ jobs:
           docker pull "$IMAGE"
           kind load docker-image "$IMAGE" --name "$KIND_CLUSTER"
 
-      
       - name: подтягиваем секреты
         env:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
