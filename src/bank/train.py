@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -179,6 +180,7 @@ def main() -> dict:
             "accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1})
         mlflow.log_dict(metadata, "metadata.json")
         mlflow.log_table(report_df, artifact_file="classification_report.json")
+        mlflow.log_param("data_md5", hashlib.md5(DATA_PATH.read_bytes()).hexdigest())
 
         info = mlflow.catboost.log_model(
             model, 
