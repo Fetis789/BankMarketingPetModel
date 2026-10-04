@@ -14,7 +14,7 @@ def load_model() -> tuple[object, dict, str]:
     import mlflow.catboost
     from mlflow import MlflowClient
 
-    mlflow.set_tracking_uri(settings.mlflow_tracking_url)
+    mlflow.set_tracking_uri(settings.mlflow_tracking_uri)
     mv = MlflowClient().get_model_version_by_alias(settings.model_name, settings.model_alias)
     pipeline = mlflow.catboost.load_model(f"models:/{settings.model_name}/{mv.version}")
     meta = mlflow.artifacts.load_dict(f"runs:/{mv.run_id}/metadata.json")

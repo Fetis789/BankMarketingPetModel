@@ -3,7 +3,6 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import Literal
 
-import joblib
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import request_validation_exception_handler
@@ -12,6 +11,7 @@ from pydantic import BaseModel, Field
 
 from bank import db
 from bank.config import settings
+from bank.model_store import load_model
 from bank.service.preprocess import preprocess
 
 
@@ -40,10 +40,7 @@ class Prediction(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    bundle = joblib.load(settings.model_path)
-    app.state.pipeline = bundle["pipeline"]
-    app.state.meta = bundle["metadata"]
-    app.state.version = bundle["metadata"]["model_version"]
+    app.state.pipeline, app.state.meta, app.state.version = load_model()
 
     db.init()
     yield
