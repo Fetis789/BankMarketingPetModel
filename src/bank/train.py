@@ -23,18 +23,18 @@ from sklearn.metrics import (
 from sklearn.model_selection import train_test_split
 
 DATA_PATH = Path(os.getenv("DATA_PATH", 'datasets/bank_additional_pre.csv'))
-MODEL_NAME = os.getenv("MODEL_NAME", 'bank_catboost_model')
-EXPERIMENT_NAME = os.getenv("EXPERIMENT_NAME", 'bank_catboost_experiment')
+MODEL_NAME = os.getenv("MODEL_NAME", 'bank_model')
+EXPERIMENT_NAME = os.getenv("EXPERIMENT_NAME", 'bank_experiment')
 
 ITERATIONS = int(os.getenv("ITERATIONS", "1000"))
-LEARNING_RATE = float(os.getenv("LEARNING_RATE", "0.06"))
+LEARNING_RATE = float(os.getenv("LEARNING_RATE", "0.05"))
 DEPTH = int(os.getenv("DEPTH", "6"))
 LOSS_FUNCTION = os.getenv("LOSS_FUNCTION", 'Logloss')
 EVAL_METRIC = os.getenv("EVAL_METRIC", 'PRAUC')
 AUTO_CLASS_WEIGHTS = os.getenv("AUTO_CLASS_WEIGHTS", 'Balanced')
 
 THRESHOLD = float(os.getenv("THRESHOLD", "0.74"))
-MIN_GAIN = float(os.getenv("MIN_GAIN", "0.01"))
+MIN_GAIN = float(os.getenv("MIN_GAIN", "0.003"))
 
 TARGET = 'y'
 NUMERIC = ['age', 'campaign', 'emp.var.rate', 'cons.conf.idx', 'euribor3m', 'nr.employed']
@@ -163,7 +163,7 @@ def main() -> dict:
     mlflow.set_experiment(EXPERIMENT_NAME)
     client = MlflowClient()
     with mlflow.start_run() as run:
-        metadata = {"features": features, "categorical": CATEGORICAL, "numeric": NUMERIC, 
+        metadata = {"feature_names": features, "categorical_features": CATEGORICAL, "numeric_features": NUMERIC, 
         "threshold": round(THRESHOLD, 4), "numeric_medians": NUMERIC_MEDIANS, 
         "categorical_missing_value": "__MISSING__", "n_train": len(x_train), 
         "data_rows": len(df), "catboost_version": catboost.__version__, 
