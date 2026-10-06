@@ -7,5 +7,4 @@ data:
   MODEL_PATH: artefacts/bank_marketing_model_catboost_bundle.joblib
   MLFLOW_TRACKING_URI: http://mlflow.mlops:5000
   MODEL_NAME: bank_model
-  MODEL_ALIAS: prod
-  #MODEL_ALIAS: champion
+  MODEL_ALIAS: champion
