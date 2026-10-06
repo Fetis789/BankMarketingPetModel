@@ -1,7 +1,7 @@
-import json 
+import json
 from pathlib import Path
 
-from locust import HttpUser, task, between
+from locust import HttpUser, between, task
 
 payload = json.loads(
     Path(__file__).with_name("good_example.json")
@@ -9,7 +9,7 @@ payload = json.loads(
 )
 
 class BankServiceUser(HttpUser):
-    wait_time = between(0.05, 0.2)
+    wait_time = between(0.4, 0.8)
 
     @task(8)
     def predict(self):
