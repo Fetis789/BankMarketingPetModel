@@ -129,7 +129,18 @@ jobs:
           kubectl get pods -A -o wide
           kubectl get ingress -A
           kubectl describe deploy/bank-service | tail -20
-          kubectl logs deploy/bank-service --tail=50 || true
+          kubectl logs deployment/bank-service -n default \
+            --all-pods=true \
+            -c api \
+            --prefix=true \
+            --tail=100 || true
+
+          kubectl logs deployment/bank-service -n default \
+            --all-pods=true \
+            -c api \
+            --prefix=true \
+            --previous \
+            --tail=100 || true
       
       
 
