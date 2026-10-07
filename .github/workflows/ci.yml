@@ -62,8 +62,7 @@ jobs:
     timeout-minutes: 10
     permissions: {contents: read, packages: write}
     env: 
-      KIND_CLUSTER: wrong
-      #KIND_CLUSTER: hw3
+      KIND_CLUSTER: hw3
     steps:
       - uses: actions/checkout@v7
       - run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:sha-${GITHUB_SHA}" >> "$GITHUB_ENV"
@@ -110,7 +109,7 @@ jobs:
 
       - name: smoke
         run: |
-          U="http://$KIND_CLUSTER-control-plane:30080"; H="Host: bank.localhost"
+          U="http://$KIND_CLUSTER-control-plane:30080"; H="Host: wrong.localhost"
 
           curl --fail -s --retry 5 --retry-all-errors -H "$H" $U/health | tee health.json; echo
           grep -q '"model_version":"bank_model-v' health.json
