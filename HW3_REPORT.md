@@ -78,38 +78,38 @@ ci.yml писал аналогично семинару с изменнения�
 
 **Первый прогон**
 Сначала написал locustfile, в котором 80% запросов шло на predict, 20% на health. Поставил wait_time от 0.05 до 0.2 с для пользователя (то есть оценка сверху на RPS равна примерно 60/0.125 = 480 RPS). Это оценка сверху так как в ней не учитывается время ответа самого сервера. Для сервера с моими требованиями (requests: 100m) с двумя репликами это очень быстро привело к автоскейлингу до 6 максимальных реплик, так как нагрузка была 314m (то есть 314% из 60% необзодимых для скейлинга). Прикрепляю скрины мониторинга в k9s и в hpa, на которых видно быстрый скейл до 6 реплик.
-![1.Первый скрин мониторинга](images\homework3_hpa\first_monitor_one.png)
-![1.Второй скрин мониторинга](images\homework3_hpa\first_monitor_two.png)
+![1.Первый скрин мониторинга](images/homework3_hpa/first_monitor_one.png)
+![1.Второй скрин мониторинга](images/homework3_hpa/first_monitor_two.png)
 
 Также прикрепляю логи самой команды locust. 
-![1.Скрин мониторинга Locust](images\homework3_hpa\first_monitor_three.png)
+![1.Скрин мониторинга Locust](images/homework3_hpa/first_monitor_three.png)
 По ним видно, что фактический RPS был около 250, то есть сильно ниже верхней оценки, при этом ошибочных ответов не было.
 
 И прекрепляю итоговый отчет и desribe hpa для первого прогона.
-![1.Скрин отчета locust](images\homework3_hpa\first_report.png)
-![1.Скрин hpa describe](images\homework3_hpa\first_describe_hpa.png)
+![1.Скрин отчета locust](images/homework3_hpa/first_report.png)
+![1.Скрин hpa describe](images/homework3_hpa/first_describe_hpa.png)
 
 По отчету видим, что p95 равен порядка 860 мс на predict, что не очень хорошо (собственно, этим и можно обьянить значение фактического RPS сильно меньше верхней оценки). Забивание CPU привело к тому, что сервер тормозил. По describe видны события SuccessfulRescale, а также то, что метрики пошли вниз только где-то через несколько минут после окончания работы locust.
 
 **Второй прогон** 
 Увеличил wait_time в locustfile до от 1 до 3 с (то есть RPS не более 30). В данном случае сервер уже справлялся и доскейлился только до 3 реплик, дальше нагрузка на CPU была уже около 50%. Прикрепляю скрины мониторинга и отчетов.
-!![2.Первый скрин мониторинга](images\homework3_hpa\second_hpa_logs_one.png)
-![2.Второй скрин мониторинга](images\homework3_hpa\second_hpa_logs_two.png)
-![2.Скрин мониторинга и отчета Locust](images\homework3_hpa\second_report.png)
+!![2.Первый скрин мониторинга](images/homework3_hpa/second_hpa_logs_one.png)
+![2.Второй скрин мониторинга](images/homework3_hpa/second_hpa_logs_two.png)
+![2.Скрин мониторинга и отчета Locust](images/homework3_hpa/second_report.png)
 
 В отчете видим что фактически RPS и оказался 30, а P95 равен 11мс, что уже сильно быстрее первого прогона. Увидел, что сервер такую нагрузку спокойно выдерживает и третий прогон делал, уже уменьшив wait_time.
 
 **Третий прогон** 
 Уменьшил wait_time в locustfile до диапазона от 0.4 до 0.8 с (то есть RPS не более 100). В этом случае сервер дошел до 6 реплик, но уже более постепенно, чем в первом прогоне. Прикрепляю логи мониторинга:
-![3.Первый скрин мониторинга](images\homework3_hpa\third_hpa_logs_one.png)
-![3.Второй скрин мониторинга](images\homework3_hpa\third_hpa_logs_two.png)
-![3.Скрин мониторинга и отчета Locust](images\homework3_hpa\third_report.png)
+![3.Первый скрин мониторинга](images/homework3_hpa/third_hpa_logs_one.png)
+![3.Второй скрин мониторинга](images/homework3_hpa/third_hpa_logs_two.png)
+![3.Скрин мониторинга и отчета Locust](images/homework3_hpa/third_report.png)
 
 По логам и отчету видим, что при 6 репликах нагрузка была уже 90% от requests, но дальше скейлиться сервер уже не мог из-за maxReplicas. При этом RPS равен 98, то есть по сути равен максимально возможному с учетом выставленного wait_time. 95 равен тем же 11мс, что и во втором прогоне, то есть это как раз тот случай, в котором сервис справился с нагрузкой благодаря механизму репликации. Отдельно прикрепляю скрин hpa describe, на котором видно скейлы, а также опять видно то что число реплик идет вниз только через несколько минут после окончания.
-![3.Скрин hpa describe](images\homework3_hpa\third_hpa_describe.png). 
+![3.Скрин hpa describe](images/homework3_hpa/third_hpa_describe.png). 
 
 К третьем прогону также прикрепляю достаточно наглядный вывод команд top pods, на котором виден процесс скейлинга и забивания CPU, а затем прихода 6 реплик к итоговой нагрузке 90m. 
-![3. Скрин top pods](images\homework3_hpa\third_top_pods.png)
+![3. Скрин top pods](images/homework3_hpa/third_top_pods.png)
 
 Также стоит отметить, что у нас в коде есть в том числе запись в базу данных, из-за чего повышается CPU у postgresql (доходит до 350m при requests: 100m у него). Но скейлинг у postgresа нет, поэтому у него новые реплики, очевидно, не появляется. При этом лимита CPU у него также нет.
 
@@ -117,26 +117,26 @@ ci.yml писал аналогично семинару с изменнения�
 
 #### Некорретный Alias в ConfigMap
 При смене alias на несуществующий в configmap в логах [запущенного workflow](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/37517409190) видно, что новая нода сервиса падает с CrashLoopBackOff, однако на сервисе есть уже существующие ноды, которые продолжают работать. 
-![Ошибка новой ноды](images\homework3\bad_alias_1.png)
+![Ошибка новой ноды](images/homework3/bad_alias_1.png)
 
 
 При этом вначале при показе подробных логов выбирался только работающий под, поэтому более четко причину ошибки не увидел.
-![Логи работающего пода](images\homework3\bad_alias.png)
+![Логи работающего пода](images/homework3/bad_alias.png)
 
 Происходило это потому, что в диагностике была команда kubectl logs deploy/bank-service --tail=50 , которая выбирает только один под, которые все были от работающего контейнера. Я поменял в [следующем workflow](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/37524082404/job/112476951334) это команду на kubectl logs deployment/bank-service -n default --all-pods=true -c api --prefix=true --tail=100 || true , которая показывает логи уже всех логов, и после нее уже увидел ошибку, которую приложил скрином и по которой все становится прозрачно.
-![Итоговая ошибка с alias](images\homework3\alias_final_mistake.png)
+![Итоговая ошибка с alias](images/homework3/alias_final_mistake.png)
 
 #### Некорретный kind cluster для runner
 Поменял название кластера в ci.yml на некорректное название KIND_CLUSTER: wrong. В этом случае [прогоне](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/37526370370/job/112484776425) проблемы возникают уже на этапе доступа к кластеру и в логах явно видно сообщение, что ошибка происходит из-за того, что нет ни одного control plane для кластера с таким названием. Скрин логов:
-![Логи с плохим кластером](images\homework3\wrong_cluster_log.png)
+![Логи с плохим кластером](images/homework3/wrong_cluster_log.png)
 
 
 #### Ingress в никуда в smoke test
 Поменял в smoke test адрес хоста на несуществующий wrong.localhost. Поначалу логи в [прогоне](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/37689932152/job/113027655950) были неинформативны. Скрин ниже:
-![Неинформативные логи](images\homework3\bad_logs.png)
+![Неинформативные логи](images/homework3/bad_logs.png)
 
 Понял, что это из-за того, что у меня параметр -s в curl скрывает сообщение об ошибке. Исправил в [следующем прогоне](https://github.com/Fetis789/BankMarketingPetModel/actions/runs/37694286286/job/113042344864) параметр -s на -sS, чтобы показывались сообщение об ошибке, но не показывался бы полный прогресс, и вот тогда уже увидел в логах ошибку 404.
-![Ошибка 404](images\homework3\404_mistake.png)
+![Ошибка 404](images/homework3/404_mistake.png)
 
 В заключение кидаю ссылку на финальный прогон без этих трех ошибок - https://github.com/Fetis789/BankMarketingPetModel/actions/runs/37699388289 .
 
