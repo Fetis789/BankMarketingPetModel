@@ -16,6 +16,8 @@ dependencies = [
     "catboost==1.2.10",
     "mlflow-skinny>=3.16,<4",
     "skops>=0.16.0",
+    "prometheus-client>=0.26.0",
+    "prometheus-fastapi-instrumentator>=8.1.0",
 ]
 
 [dependency-groups]
