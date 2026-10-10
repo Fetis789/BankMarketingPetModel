@@ -7,12 +7,19 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
+from prometheus_client import Counter, Gauge, Histogram
+from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 
 from bank import db
 from bank.config import settings
 from bank.model_store import load_model
 from bank.service.preprocess import preprocess
+
+PREDICTIONS = Counter("bank_predictions_total", "Predictions by class", ["response_flg"]) 
+SCORE = Histogram("bank_score", "Predicted Response Probability", buckets=[i/10 for i in range(11)])
+MODEL_INFO = Gauge("bank_model_info", "Model information", ["version"])
+LATENCY_BUCKETS = (0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0)
 
 
 class Features(BaseModel):
@@ -41,12 +48,14 @@ class Prediction(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.pipeline, app.state.meta, app.state.version = load_model()
+    MODEL_INFO.labels(version=app.state.version).set(1)
 
     db.init()
     yield
     app.state.pipeline = None
 
 app = FastAPI(title="bank-marketing-prediction", version="1.0.0", lifespan=lifespan)
+Instrumentator().instrument(app, latency_lowr_buckets=LATENCY_BUCKETS).expose(app)
 
 #Логирование ошибок при validation_error (неправильном вводе)
 @app.exception_handler(RequestValidationError)
@@ -104,6 +113,8 @@ def predict(x: Features, bg: BackgroundTasks) -> Prediction:
     bg.add_task(db.save_prediction, request_id, payload, score, app.state.version, latency_ms)
 
     response_flg = score >= app.state.meta["threshold"]
+    PREDICTIONS.labels(response_flg=str(response_flg).lower()).inc()
+    SCORE.observe(score)
 
     return Prediction(
             score=score, 
