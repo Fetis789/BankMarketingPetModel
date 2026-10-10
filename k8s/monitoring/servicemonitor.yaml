@@ -7,7 +7,7 @@ spec:
   selector:
     matchLabels:
       app: bank-service
-    endpoints:
-      - port: http
-        path: /metrics
-        interval: 15s
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
