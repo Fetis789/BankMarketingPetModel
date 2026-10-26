@@ -36,7 +36,8 @@ uv run python --version
 Перед запуском кластера необходимо проверить наличие всех необходимых для этого инструментов. И установить их, если они отсутствуют.
 
 <details>
-<summary> Установка всех сервисов</summary>
+<summary> Установка всех сервисов </summary>
+
 ```powershell
 winget install --exact --id Docker.DockerDesktop
 winget install --exact --id Kubernetes.kind
@@ -113,7 +114,8 @@ bash platform/up.sh
 
 Можно проверить наличие и содержание кластера следующими командами:
 <details>
-<summary> Команды для проверки кластера</summary>
+<summary> Команды для проверки кластера </summary>
+
 ```
 kind get clusters
 kubectl config current-context
@@ -141,10 +143,19 @@ sudo resolvectl flush-caches
 
 ## 5. Подготовка данных
 
-Далее нужно загрузить в директорию свои данные и привязать их к dvc. Здесь на всякий случай приведу также код с привязыванием локального репозитория к удаленному репозиторию в github, так как он понадобится нам в дальнейшем для раскатки сервиса.
+Далее нужно загрузить в директорию свои данные и привязать их к dvc. Загрузка данных осуществляется скриптом src.bank.download_data.py и ее можно осуществить следующей командой: 
+
+```
+uv run python -m bank.download_data
+```
+
+Данные появятся по пути datasets/bank_additional_pre.csv.
+
+Здесь на всякий случай приведу также код с привязыванием локального репозитория к удаленному репозиторию в github, так как он понадобится нам в дальнейшем для раскатки сервиса.
 
 <details>
-<summary> Привязка удаленного репозитория</summary>>
+<summary> Привязка удаленного репозитория </summary>
+
 Команды для привязки удаленного репозитория:
 ```
 git remote add origin https://github.com/NAME/REPO.git
@@ -162,9 +173,9 @@ uv run dvc remote modify --local laptop secret_access_key dvc-secret-123
 Теперь добавляем файл под управление в dvc и пушим его в хранилище. Первая команда нужна, если уже до этого отправили ваш файл с данными в git.
 
 ```
-git rm -r --cached datasets/{your_dataset}.csv
-uv run dvc add datasets/{your_dataset}.csv
-uv run dvc push datasets/{your_dataset}.csv.dvc -r laptop
+git rm -r --cached datasets/bank_additional_pre.csv
+uv run dvc add datasets/bank_additional_pre.csv
+uv run dvc push datasets/bank_additional_pre.csv.dvc -r laptop
 ```
 
 После этого рекомендуется сделать коммит в git, который сохранит в нем ваш датасет в .dvc файле в виде хэша.
@@ -173,19 +184,20 @@ uv run dvc push datasets/{your_dataset}.csv.dvc -r laptop
 Перед раскаткой сервиса необходимо разместить в mlflow натренированную на отвалидированных данных версию модели. Для этого необзодимо запустить файлы data.py и train.py. Здесь вам также понадобятся параметры DATA_PATH, MODEL_NAME, MODEL_EXPERIMENT и MLFLOW_TRACKING_URI. Их вы можете либо поместить в .env (на примере .env.example), либо выполнить следуюшие команды:
 
 <details>
-<summary> Команды для переменных</summary>
+<summary> Команды для переменных </summary>
+
 В powershell
 ```powershell
-$env:DATA_PATH="datasets/{your_dataset}.csv"
+$env:DATA_PATH="datasets/bank_additional_pre.csv"
 $env:MLFLOW_TRACKING_URI="http://mlflow.localhost"
-$env:EXPERIMENT_NAME="{your_experiment_name}"
+$env:EXPERIMENT_NAME="bank_experiment"
 ```
 
 В bash linux
 ```
-export DATA_PATH="datasets/{your_dataset}.csv"
+export DATA_PATH="datasets/bank_additional_pre.csv"
 export MLFLOW_TRACKING_URI="http://mlflow.localhost"
-export EXPERIMENT_NAME="{your_experiment_name}"
+export EXPERIMENT_NAME="bank_experiment"
 ```
 </details>
 
