@@ -4,7 +4,6 @@ from shutil import copyfileobj
 from urllib.request import urlopen
 from zipfile import ZipFile
 
-
 URL = (
     "https://archive.ics.uci.edu/ml/"
     "machine-learning-databases/00222/bank-additional.zip"
