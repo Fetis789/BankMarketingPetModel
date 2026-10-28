@@ -214,10 +214,12 @@ uv run python -m bank.train
 Деплой сервиса осуществляется в github ci по кнопке. Для этого нам нужно создать runner, который будет иметь доступ к нашему локальному кластеру. Необходимо зайти на github в раздел Settings -> Actions -> Runners и в нем получить токен для создания и привязки runnera. После этого в git bash неоходимо выполнить длинную команду, текст которой привел в раскрывашке.
 
 <details>
-<summary> Команда для привязки runnerа</summary>
+<summary> Команда для привязки runnerа </summary>
+
 ```
 MSYS_NO_PATHCONV=1 docker run -d --name gh-runner --network kind --group-add 0 --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock -e REPO_URL={YOUR_REPO} -e RUNNER_TOKEN={YOUR_TOKEN} ghcr.io/actions/actions-runner:2.337.0 bash -c '[ -f .runner ] || ./config.sh --unattended --url $REPO_URL --token $RUNNER_TOKEN --name hw4-kind --labels kind; ./run.sh'
 ```
+
 </details>
 
 
